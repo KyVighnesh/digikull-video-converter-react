@@ -93,6 +93,10 @@ function App() {
 
               fileDownload(res.data,"converted.mp3")
 
+              axios.put("https://digikull-video-converter-node.onrender.com/unlink").then(res=> {
+                console.log(res)
+              })
+
 
             })
           }}>Download Audio</button>
