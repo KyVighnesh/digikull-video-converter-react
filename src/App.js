@@ -40,7 +40,7 @@ function App() {
         },
       }
 
-      axios.post("https://digikull-video-converter-node.onrender.com/upload",formData,config).then(data=> {
+      axios.post("https://digikull-video-converter-final.onrender.com/upload",formData,config).then(data=> {
         console.log(data)
 
         
@@ -88,12 +88,12 @@ function App() {
           loading == false?
           <a>
           <button onClick={()=> {
-            axios.get("https://digikull-video-converter-node.onrender.com/converted",{responseType:'blob'}).then(res=> {
+            axios.get("https://digikull-video-converter-final.onrender.com/converted",{responseType:'blob'}).then(res=> {
               console.log(res)
 
               fileDownload(res.data,"converted.mp3")
 
-              axios.put("https://digikull-video-converter-node.onrender.com/unlink").then(res=> {
+              axios.put("https://digikull-video-converter-final.onrender.com/unlink").then(res=> {
                 console.log(res)
               })
 
