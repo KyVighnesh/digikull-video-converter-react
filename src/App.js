@@ -22,9 +22,6 @@ function App() {
 
   }
     
-
-
-
   const videoUpload = () => {
     let formData=new FormData();
     formData.append("file",file)
@@ -39,25 +36,23 @@ function App() {
             'Content-Type': 'multipart/form-data'
         },
       }
-
-      axios.post("https://digikull-video-converter-final.onrender.com/upload",formData,config).then(data=> {
-        console.log(data)
-
         
-      
-        
+        axios.post("https://digikull-video-converter-final.onrender.com/upload",formData,config).then(data=> {
+          console.log(data)
+  
 
-        if(data) {
-          setLoading(false)
-        }
-      }).catch(err => {{
-        if(err) {
-          alert("File Not Supported")
-        }
-        console.log(err)  
-      }})
-
+          if(data) {
+            setLoading(false)
+          }
+        }).catch(err => {{
+          if(err) {
+            alert("File Not Supported")
+          }
+          console.log(err)  
+        }})
       
+     
+
 
   }
 
@@ -93,10 +88,9 @@ function App() {
 
               fileDownload(res.data,"converted.mp3")
 
-              axios.put("https://digikull-video-converter-node.onrender.com/unlink").then(res=> {
+              axios.put("https://digikull-video-converter-final.onrender.com/unlink").then(res=> {
                 console.log(res)
               })
-
 
             })
           }}>Download Audio</button>
