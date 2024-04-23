@@ -2,25 +2,69 @@ import logo from './logo.svg';
 import './App.css';
 import axios from 'axios'
 import { useState,useEffect } from 'react';
-import fileDownload from 'js-file-download';
-
 
 
 function App() {
 
   const [file,setFile]=useState("");
 
+  const[videoUrl,setVideoUrl] = useState("")
+  
   const[converted,setConverted] = useState("")
 
-  const [loading,setLoading] = useState()
+  const [loading,setLoading] = useState(false)
 
+  const [validFile,setValidFile] = useState(null)
  
 
   const handleFileChange=(event)=>{
 
-    setFile(event.target.files[0])
+    if(event.target.files[0] == undefined) {
+      setFile(file)
+      setVideoUrl(videoUrl)
+    }
+
+    else if(event.target.files[0].name.split('.')[1] == 'mp4' || event.target.files[0].name.split('.')[1] == 'webm') {
+
+      setValidFile(true)
+      setFile(event.target.files[0])
+      let objUrl = URL.createObjectURL(event.target.files[0])
+      setVideoUrl(objUrl)
+      
+    }
+
+    else {
+      setValidFile(false)
+      alert('Invalid File Type')
+    }
+
 
   }
+
+  const onHandleDownload = async() => {
+
+  
+    let response = await fetch(converted)
+
+      const blob = await response.blob()
+
+      console.log(blob)
+      
+      const link = document.createElement('a');
+      link.href = window.URL.createObjectURL(blob);
+      link.download = 'audio_file.mp3'; // Specify the filename for the downloaded file
+
+      // Append anchor element to document body
+      document.body.appendChild(link);
+
+      // Trigger click event on anchor element
+      link.click();
+
+      // Remove anchor element from document body
+      document.body.removeChild(link);
+
+  }
+
     
   const videoUpload = () => {
     let formData=new FormData();
@@ -33,22 +77,28 @@ function App() {
 
     let config = {
         headers: {
-            'Content-Type': 'multipart/form-data'
+            'Content-Type': 'multipart/form-data',
+            'Access-Control-Allow-Origin': 'true'
         },
       }
         
-        axios.post("https://digikull-video-converter-final.onrender.com/upload",formData,config).then(data=> {
-          console.log(data)
-  
+        axios.post("https://digikull-video-converter-final.onrender.com/upload",formData,config).then(res=> {
 
-          if(data) {
+        console.log(res.data.data.Location)
+
+          if(res) {
             setLoading(false)
+            setValidFile(false)
+            console.log(res)
+
+            setConverted(res.data.data.Location)
+
+
           }
         }).catch(err => {{
           if(err) {
-            alert("File Not Supported")
+            alert("Unable to process request, please try again")
           }
-          console.log(err)  
         }})
       
      
@@ -61,47 +111,58 @@ function App() {
   
 
   return (
-    <div className="App">
-      <h3>Video to Audio Converter Online</h3>
+    <div className="App" style={{minHeight:window.innerHeight}}>
 
-      <input type="file" onChange={handleFileChange}/>
-      <div>
-        <br/>
-        <br/>
-      <button onClick={videoUpload}> Convert </button>
-      </div>
+      <div class="card">
+        
+  <div class="card-info">
+    <h3>Quick Convert</h3>
 
-      <br/>
-        <br/>
-      
-      <div>
-        {
-          loading?"processing.....":""
-        }
+<div id='inner'>
+      <label htmlFor='upload'>Upload Video</label>
 
-        {
-          loading == false?
-          <a>
-          <button onClick={()=> {
-            axios.get("https://digikull-video-converter-final.onrender.com/converted",{responseType:'blob'}).then(res=> {
-              console.log(res)
+<input type="file" onChange={handleFileChange} id='upload'/>
+<div>
+  <br/>
+  <br/>
 
-              fileDownload(res.data,"converted.mp3")
+  {validFile && loading == false?<button onClick={videoUpload}> <span> Convert
+  </span> </button>:validFile == false && loading == false?<button onClick={onHandleDownload}> <span> Download Audio
+  </span> </button>:""}
+  
+</div>
 
-              axios.put("https://digikull-video-converter-final.onrender.com/unlink").then(res=> {
-                console.log(res)
-              })
+<br/>
+  <br/>
 
-            })
-          }}>Download Audio</button>
-</a>
-        :""
-        }
+<div className='loader-container'>
+  {
+    loading?<ul class="wave-menu">
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+  </ul>:""
+  }
+
+</div>
+<div>
+  
+<video style={{height:"200px",width:"400px"}} src = {videoUrl} controls>
+</video>
 
 
-      </div>
+</div>
 
-      
+</div>
+  </div>
+</div>
     </div>
   );
 }
